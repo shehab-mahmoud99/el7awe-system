@@ -44,7 +44,7 @@
         h2 { color: #3e2723; margin: 0 0 25px 0; font-size: 26px; font-weight: bold; }
         label { display: block; text-align: right; font-weight: bold; font-size: 14px; color: #5d4037; margin-bottom: 5px; }
         
-        input { 
+        input[type="email"], input[type="password"] { 
             width: 100%; padding: 12px 15px; margin-bottom: 20px; 
             border: 2px solid #bcaaa4; border-radius: 10px; 
             background: #fff; box-sizing: border-box; font-size: 15px;
@@ -52,6 +52,13 @@
         }
         input:focus { outline: none; border-color: #d84315; box-shadow: 0 0 8px rgba(216, 67, 21, 0.2); }
         
+        .remember-me-container {
+            display: flex; align-items: center; gap: 8px;
+            text-align: right; margin-bottom: 20px; color: #5d4037;
+            font-size: 14px; font-weight: bold; cursor: pointer;
+        }
+        .remember-me-container input { cursor: pointer; width: 16px; height: 16px; margin: 0; }
+
         button { 
             width: 100%; padding: 14px; background: #d84315; color: white; 
             border: none; border-radius: 10px; cursor: pointer; font-size: 17px; font-weight: bold;
@@ -73,10 +80,15 @@
         <h2>تسجيل الدخول للسيستم 🎮</h2>
         
         <label>البريد الإلكتروني:</label>
-        <input type="email" id="email" placeholder="أدخل البريد الإلكتروني">
+        <input type="email" id="email" placeholder="أدخل البريد الإلكتروني ">
         
         <label>كلمة السر:</label>
         <input type="password" id="password" placeholder="••••••••">
+        
+        <label class="remember-me-container">
+            <input type="checkbox" id="remember-email">
+            <span>تذكر البريد الإلكتروني  💾</span>
+        </label>
         
         <button onclick="login()">دخول إلى الحاوي ⏹️</button>
     </div>
@@ -97,9 +109,19 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        // أول ما الصفحة تفتح.. بنشوف لو في إيميل محفوظ بنكتبه أوتوماتيك
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem("savedUserEmail");
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+                document.getElementById('remember-email').checked = true;
+            }
+        });
+
         window.login = () => {
             const email = document.getElementById('email').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
+            const rememberEmailChecked = document.getElementById('remember-email').checked;
 
             if(!email || !password) {
                 alert("برجاء كتابة البريد الإلكتروني وكلمة السر أولاً!");
@@ -110,6 +132,13 @@
                 .then((userCredential) => {
                     let loggedEmail = userCredential.user.email.toLowerCase();
                     localStorage.setItem("loggedUserEmail", loggedEmail);
+                    
+                    // هنا الذكاء: لو معلم على الزرار بنحفظ الإيميل، لو مش معلم بنمسحه
+                    if (rememberEmailChecked) {
+                        localStorage.setItem("savedUserEmail", loggedEmail);
+                    } else {
+                        localStorage.removeItem("savedUserEmail");
+                    }
                     
                     if(loggedEmail === "admin@el7awe.com") {
                         window.location.href = "admin.html";
