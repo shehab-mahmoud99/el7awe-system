@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة دخول الحاوي 🎮</title>
+    <style>
+        body { 
+            margin: 0; padding: 0;
+            background-color: #3e2723; 
+            background-image: radial-gradient(#5d4037 1px, transparent 1px); 
+            background-size: 20px 20px;
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .floating-buttons {
+            position: absolute; width: 100%; height: 100%;
+            z-index: 0; opacity: 0.15; pointer-events: none;
+        }
+        .btn-shape { position: absolute; font-size: 60px; user-select: none; }
+        
+        @keyframes floatUp { 
+            0% { transform: translateY(0) rotate(0deg); } 
+            50% { transform: translateY(-30px) rotate(45deg); } 
+            100% { transform: translateY(0) rotate(0deg); } 
+        }
+        @keyframes floatDown { 
+            0% { transform: translateY(0) rotate(0deg); } 
+            50% { transform: translateY(30px) rotate(-45deg); } 
+            100% { transform: translateY(0) rotate(0deg); } 
+        }
+
+        .login-card { 
+            background: #fffaf0; 
+            padding: 40px; border-radius: 20px; width: 340px; 
+            text-align: center; z-index: 1;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 2px solid #8d6e63;
+        }
+
+        h2 { color: #3e2723; margin: 0 0 25px 0; font-size: 26px; font-weight: bold; }
+        label { display: block; text-align: right; font-weight: bold; font-size: 14px; color: #5d4037; margin-bottom: 5px; }
+        
+        input { 
+            width: 100%; padding: 12px 15px; margin-bottom: 20px; 
+            border: 2px solid #bcaaa4; border-radius: 10px; 
+            background: #fff; box-sizing: border-box; font-size: 15px;
+            color: #3e2723; transition: all 0.3s;
+        }
+        input:focus { outline: none; border-color: #d84315; box-shadow: 0 0 8px rgba(216, 67, 21, 0.2); }
+        
+        button { 
+            width: 100%; padding: 14px; background: #d84315; color: white; 
+            border: none; border-radius: 10px; cursor: pointer; font-size: 17px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(216, 67, 21, 0.3); transition: 0.3s;
+        }
+        button:hover { background: #bf360c; transform: scale(1.02); box-shadow: 0 6px 15px rgba(216, 67, 21, 0.4); }
+    </style>
+</head>
+<body>
+
+    <div class="floating-buttons">
+        <div class="btn-shape" style="top: 15%; left: 12%; animation: floatUp 6s infinite ease-in-out;">🔺</div>
+        <div class="btn-shape" style="top: 22%; right: 15%; animation: floatDown 7s infinite ease-in-out;">⭕</div>
+        <div class="btn-shape" style="bottom: 18%; left: 18%; animation: floatDown 5.5s infinite ease-in-out;">❌</div>
+        <div class="btn-shape" style="bottom: 25%; right: 12%; animation: floatUp 6.5s infinite ease-in-out;">🟦</div>
+    </div>
+
+    <div class="login-card">
+        <h2>تسجيل الدخول للسيستم 🎮</h2>
+        
+        <label>البريد الإلكتروني:</label>
+        <input type="email" id="email" placeholder="أدخل البريد الإلكتروني">
+        
+        <label>كلمة السر:</label>
+        <input type="password" id="password" placeholder="••••••••">
+        
+        <button onclick="login()">دخول إلى الحاوي ⏹️</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4viBlsx5jHmtpjfKyhDBJCJNLRM-Uduk",
+            authDomain: "system-el7awe.firebaseapp.com",
+            projectId: "system-el7awe",
+            storageBucket: "system-el7awe.firebasestorage.app",
+            messagingSenderId: "938519562478",
+            appId: "1:938519562478:web:da31c7a27df6463c5f8bff"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.login = () => {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            if(!email || !password) {
+                alert("برجاء كتابة البريد الإلكتروني وكلمة السر أولاً!");
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    let loggedEmail = userCredential.user.email.toLowerCase();
+                    localStorage.setItem("loggedUserEmail", loggedEmail);
+                    
+                    if(loggedEmail === "admin@el7awe.com") {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
+                })
+                .catch((e) => {
+                    if (e.code === "auth/wrong-password" || e.code === "auth/user-not-found") {
+                        alert("⚠️ خطأ: البريد الإلكتروني أو كلمة السر غير صحيحة!");
+                    } else {
+                        alert("⚠️ حدث خطأ أثناء تسجيل الدخول: " + e.message);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

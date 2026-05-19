@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سيستم الحاوي - واجهة العامل</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ede3d4; margin: 0; padding: 0; color: #3e2723; }
+        .header-bar { background-color: #3e2723; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .shop-title { font-size: 28px; font-weight: bold; color: #f5f5f5; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .main-content { padding: 0 20px 20px 20px; }
+        
+        /* شريط الحسابات الثلاثي المتكامل للعامل */
+        .worker-dashboard { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px; }
+        .w-box { background: #8d6e63; color: white; padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; text-align: center; min-width: 180px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 1px solid #5d4037; }
+        .w-box span { display: block; font-size: 22px; color: #ff9800; margin-top: 5px; }
+
+        .expense-section { background-color: #fffaf0; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 30px; border: 2px dashed #8d6e63; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .container { display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 20px; }
+        .device-card { background-color: #fffaf0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; width: 310px; border: 2px solid #d7ccc8; border-top: 6px solid #a1887f; }
+        .device-card.active { border-top-color: #d84315; border-color: #d84315; }
+        
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 5px; font-size: 14px; background-color: #bcaaa4; color: #3e2723; margin-bottom: 15px; font-weight: bold; }
+        .status-badge.running { background-color: #ffcc80; color: #e65100; }
+        .time-display { font-size: 13px; color: #5d4037; margin-bottom: 10px; background: #f5ebe0; padding: 6px; border-radius: 4px; border: 1px solid #e0d4c3; }
+        select, input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #bcaaa4; border-radius: 6px; box-sizing: border-box; }
+        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .btn-inline { width: auto; padding: 0 15px; background-color: #8d6e63; color: white; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 6px; font-size: 14px; }
+        button:disabled { background-color: #e0d7cd !important; color: #a1968a !important; cursor: not-allowed; }
+        .btn-start { background-color: #4e342e; color: white; } 
+        .btn-stop { background-color: #bf360c; color: white; }
+        
+        .log-section { margin-top: 40px; background: #fffaf0; padding: 20px; border-radius: 10px; border: 1px solid #d7ccc8; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; min-width: 1000px; text-align: center; }
+        th, td { border: 1px solid #d7ccc8; padding: 12px; }
+        th { background-color: #5d4037; color: white; }
+        tr:nth-child(even) { background-color: #fdf8f2; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <h1 class="shop-title">بلايستيشن اَلْحَاوِي - واجهة العامل (<span id="worker-title-name">جاري التحميل...</span>)</h1>
+    </div>
+
+    <div class="main-content">
+        <div class="worker-dashboard" id="worker-stats-bar" style="display: none;">
+            <div class="w-box">إجمالي الإيراد <span id="w-total-cash">0</span> ج</div>
+            <div class="w-box">إجمالي المصروفات <span id="w-total-expenses">0</span> ج</div>
+            <div class="w-box" style="background:#3e2723;">صافي الدرج الفعلي <span id="w-net-cash" style="color:#25D366;">0</span> ج</div>
+        </div>
+        
+        <div class="expense-section" id="worker-expense-input-div" style="display: none;">
+            <h4 style="margin: 0 0 12px 0; color: #3e2723; font-size: 16px;">💸 تسجيل مصروف جديد في الوردية</h4>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <input type="text" id="expense-name" placeholder="بيان المصروف" style="width: 250px; margin-bottom:0;">
+                <input type="number" id="expense-amount" placeholder="المبلغ" style="width: 100px; margin-bottom:0;">
+                <button onclick="addExpense()" style="width: auto; margin-bottom:0; background-color: #d84315; color: #fff; padding: 10px 20px;">➕ ترحيل وخصم المصروف</button>
+            </div>
+        </div>
+        
+        <div class="container" id="devices-container"></div>
+
+        <div class="log-section">
+            <h3 style="color: #3e2723;">📋 سجل فواتير الوردية الحالية</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ والوقت</th>
+                        <th>اسم العميل</th>
+                        <th>رقم الجهاز</th>
+                        <th>طلبات البوفيه</th>
+                        <th>إجمالي البوفيه</th>
+                        <th>إجمالي وقت اللعب</th>
+                        <th>إجمالي الفاتورة</th>
+                    </tr>
+                </thead>
+                <tbody id="log-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4viBlsx5jHmtpjfKyhDBJCJNLRM-Uduk",
+            authDomain: "system-el7awe.firebaseapp.com",
+            projectId: "system-el7awe",
+            storageBucket: "system-el7awe.firebasestorage.app",
+            messagingSenderId: "938519562478",
+            appId: "1:938519562478:web:da31c7a27df6463c5f8bff"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const loggedUserEmail = localStorage.getItem("loggedUserEmail") || "";
+
+        let startTimes = {};
+        let cafeAccounts = { 1: 0, 2: 0, 3: 0, 4: 0 }; 
+        let cafeOrdersText = { 1: [], 2: [], 3: [], 4: [] }; 
+        let globalPermissions = { canAddBuffet: true, canStopDevice: true };
+
+        if(loggedUserEmail) {
+            db.collection("users").doc(loggedUserEmail).get().then((doc) => {
+                if(doc.exists) {
+                    let u = doc.data();
+                    document.getElementById('worker-title-name').innerText = u.name;
+                    
+                    if(u.canViewCash) {
+                        document.getElementById('worker-stats-bar').style.display = "flex";
+                    }
+                    if(u.canAddExpense) {
+                        document.getElementById('worker-expense-input-div').style.display = "block";
+                    }
+                    
+                    globalPermissions.canAddBuffet = u.canAddBuffet;
+                    globalPermissions.canStopDevice = u.canStopDevice;
+                    buildDevicesHTML();
+                } else { buildDevicesHTML(); }
+            });
+        } else { buildDevicesHTML(); }
+
+        function buildDevicesHTML() {
+            const devicesContainer = document.getElementById('devices-container');
+            devicesContainer.innerHTML = "";
+            for(let i=1; i<=4; i++) {
+                let deviceType = i <= 2 ? "PS5" : "PS4";
+                let singlePrice = i <= 2 ? 30 : 20;
+                let multiPrice = i <= 2 ? 40 : 30;
+                
+                let buffetHTML = globalPermissions.canAddBuffet ? `
+                <div class="flex-row">
+                    <select id="product-${i}">
+                        <option value="0" data-name="">اختر مشروب...</option>
+                        <option value="20" data-name="شاي">شاي (20 ج)</option>
+                        <option value="30" data-name="قهوة">قهوة (30 ج)</option>
+                        <option value="25" data-name="كانز">كانز (25 ج)</option>
+                    </select>
+                    <input type="number" id="qty-${i}" placeholder="العدد" min="1" style="width: 65px;">
+                    <button class="btn-inline" style="background-color: #6d4c41;" onclick="saveProductToDevice(${i})">➕</button>
+                </div>` : `<p style="color:gray; font-size:12px; text-align:center;">🔒 إضافة البوفيه مقفولة بصلاحية الأدمن</p>`;
+
+                devicesContainer.innerHTML += `
+                <div class="device-card" id="card-${i}">
+                    <h3 style="margin:0 0 10px 0; color: #3e2723;">جهاز (${i}) - ${deviceType}</h3>
+                    <div class="status-badge" id="status-${i}">الحالة: متوقف</div>
+                    <div class="time-display" id="time-info-${i}">وقت البدء: لم يبدأ</div>
+                    <input type="text" id="customer-${i}" placeholder="اسم العميل (إجباري) *">
+                    <select id="mode-${i}">
+                        <option value="">-- اختر نوع اللعب --</option>
+                        <option value="${singlePrice}">سنجل (${singlePrice} ج/ساعة)</option>
+                        <option value="${multiPrice}">مالتي (${multiPrice} ج/ساعة)</option>
+                    </select>
+                    ${buffetHTML}
+                    <div style="font-size:14px; margin: 15px 0; color:#3e2723; font-weight:bold; text-align: center; background: #fff3e0; padding: 8px; border-radius: 5px;">
+                        <span id="current-total-${i}">حساب اللحظة = 0 ج</span>
+                    </div>
+                    <button class="btn-start" id="start-btn-${i}" onclick="startDevice(${i})">بدء اللعب</button>
+                    <button class="btn-stop" id="stop-btn-${i}" onclick="stopDevice(${i})" disabled>إنهاء الحساب</button>
+                </div>`;
+            }
+        }
+
+        function saveProductToDevice(id) {
+            let productSelect = document.getElementById(`product-${id}`);
+            let qty = Number(document.getElementById(`qty-${id}`).value);
+            let price = Number(productSelect.value);
+            if (price === 0 || qty <= 0) return alert("اختر المشروب والعدد!");
+            let name = productSelect.options[productSelect.selectedIndex].getAttribute('data-name');
+            cafeAccounts[id] += (price * qty);
+            cafeOrdersText[id].push(`${name} (x${qty})`);
+            document.getElementById(`current-total-${id}`).innerText = `حساب البوفيه الحالي = ${cafeAccounts[id]} ج`;
+            productSelect.value = "0"; document.getElementById(`qty-${id}`).value = "";
+        }
+
+        function startDevice(id) {
+            let customerInput = document.getElementById(`customer-${id}`);
+            let modeSelect = document.getElementById(`mode-${id}`);
+            if (customerInput.value.trim() === "" || modeSelect.value === "") return alert("⚠️ خطأ: يجب كتابة اسم العميل واختيار نوع اللعب أولاً!");
+            customerInput.disabled = true; modeSelect.disabled = true;
+            startTimes[id] = new Date();
+            document.getElementById(`card-${id}`).classList.add('active');
+            let status = document.getElementById(`status-${id}`);
+            status.innerText = "شغال حالياً"; status.classList.add('running');
+            document.getElementById(`time-info-${id}`).innerText = "وقت البدء: " + startTimes[id].toLocaleTimeString('ar-EG');
+            document.getElementById(`start-btn-${id}`).disabled = true;
+            document.getElementById(`stop-btn-${id}`).disabled = false;
+        }
+
+        function stopDevice(id) {
+            if(!globalPermissions.canStopDevice) return alert("⚠️ خطأ: ليس لديك صلاحية إنهاء الحساب! يرجى مراجعة الأدمن.");
+
+            let endTime = new Date();
+            let startTime = startTimes[id];
+            let totalSeconds = Math.max(Math.floor((endTime - startTime) / 1000), 1);
+            let hrs = Math.floor(totalSeconds / 3600);
+            let mins = Math.floor((totalSeconds % 3600) / 60);
+            let durationText = `${hrs} س و ${mins} د`;
+            let modeSelect = document.getElementById(`mode-${id}`);
+            let playCost = Math.max(Math.round((totalSeconds / 3600) * Number(modeSelect.value)), 1);
+            let totalBill = playCost + cafeAccounts[id];
+            let dateStr = new Date().toLocaleString('ar-EG');
+
+            db.collection("currentShift").add({
+                customer: document.getElementById(`customer-${id}`).value,
+                device: id, play: playCost, cafeItems: cafeOrdersText[id].join(' + ') || "لا يوجد",
+                cafe: cafeAccounts[id], total: totalBill, duration: durationText, dateStr: dateStr,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            db.collection("settings").doc("shift").update({ totalCash: firebase.firestore.FieldValue.increment(totalBill) });
+
+            setTimeout(() => {
+                document.getElementById(`card-${id}`).classList.remove('active');
+                document.getElementById('status-' + id).className = "status-badge";
+                document.getElementById('status-' + id).innerText = "الحالة: متوقف";
+                let cust = document.getElementById(`customer-${id}`); cust.disabled = false; cust.value = "";
+                modeSelect.disabled = false; modeSelect.value = "";
+                document.getElementById(`start-btn-${id}`).disabled = false;
+                document.getElementById(`stop-btn-${id}`).disabled = true;
+                document.getElementById(`current-total-${id}`).innerText = "حساب الجهاز = 0 ج";
+            }, 1500);
+            cafeAccounts[id] = 0; cafeOrdersText[id] = []; delete startTimes[id];
+        }
+
+        db.collection("settings").doc("shift").onSnapshot((doc) => {
+            if (doc.exists) {
+                let d = doc.data();
+                let cash = d.totalCash || 0;
+                let exp = d.totalExpenses || 0;
+                if(document.getElementById('w-total-cash')) document.getElementById('w-total-cash').innerText = cash;
+                if(document.getElementById('w-total-expenses')) document.getElementById('w-total-expenses').innerText = exp;
+                if(document.getElementById('w-net-cash')) document.getElementById('w-net-cash').innerText = (cash - exp);
+            }
+        });
+
+        db.collection("currentShift").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+            let tbody = document.getElementById('log-table-body'); tbody.innerHTML = "";
+            snapshot.forEach((doc) => {
+                let inv = doc.data();
+                tbody.innerHTML += `<tr>
+                    <td>${inv.dateStr || ""}</td>
+                    <td>${inv.customer}</td>
+                    <td>جهاز (${inv.device})</td>
+                    <td style="color: #d84315; font-weight: bold;">${inv.cafeItems}</td>
+                    <td>${inv.cafe} ج</td>
+                    <td>${inv.duration}</td>
+                    <td><strong>${inv.total} ج</strong></td>
+                </tr>`;
+            });
+        });
+
+        function addExpense() {
+            let name = document.getElementById('expense-name').value.trim();
+            let amount = Number(document.getElementById('expense-amount').value);
+            if (!name || amount <= 0) return alert("أدخل بيانات المصروف!");
+            db.collection("expenses").add({ name: name, amount: amount, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            db.collection("settings").doc("shift").update({ totalExpenses: firebase.firestore.FieldValue.increment(amount) });
+            document.getElementById('expense-name').value = ""; document.getElementById('expense-amount').value = "";
+            alert("تم تسجيل المصروف بنجاح وترحيله للدرج!");
+        }
+    </script>
+</body>
+</html>
