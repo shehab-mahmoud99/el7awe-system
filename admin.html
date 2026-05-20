@@ -11,7 +11,6 @@
         .btn-logout { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background-color: #b71c1c; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-logout:hover { background-color: #e53935; }
 
-        /* ستايل القائمة الجانبية الجديدة (Sidebar) */
         .openbtn { font-size: 24px; cursor: pointer; background-color: #ff9800; color: #1b0000; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); transition: 0.3s; }
         .openbtn:hover { background-color: #e68a00; }
         .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; right: 0; background-color: #1b0000; overflow-x: hidden; transition: 0.4s; padding-top: 60px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
@@ -90,7 +89,7 @@
                 <div class="checkbox-group">
                     <label><input type="checkbox" id="p-view-cash" checked> رؤية إجمالي إيراد وصافي درج الوردية</label>
                     <label><input type="checkbox" id="p-add-expense" checked> تسجيل وخصم مصروفات الوردية</label>
-                    <label><input type="checkbox" id="p-add-buffet" checked> إضافة مشروبات وطلبات بوفيه للأجهزة</label>
+                    <label><input type="checkbox" id="p-add-buffet" checked> بيع وإضافة بوفيه</label>
                     <label><input type="checkbox" id="p-stop-device" checked> إنهاء حساب الأجهزة وإصدار الفواتير</label>
                 </div>
                 <button onclick="createWorkerAccount()" style="background-color: #d84315; color: white; width: 100%; font-size: 16px;">حفظ وتفعيل الحساب الحين</button>
@@ -101,7 +100,6 @@
             <div class="modal-content">
                 <span class="close-btn" onclick="closeSettingsModal()">&times;</span>
                 <h3 style="color: #3e2723; margin-top: 0;">⚙️ إعدادات المحل والأسعار</h3>
-                
                 <h4 style="text-align:right; margin:5px 0; color:#d84315;">💵 أسعار الألعاب (للساعة الواحدة):</h4>
                 <div style="display:flex; gap:10px;">
                     <input type="number" id="price-ps5-single" placeholder="سعر PS5 سنجل">
@@ -119,11 +117,10 @@
                     <input type="number" id="new-item-price" placeholder="سعره" style="width: 100px;">
                     <button onclick="addBuffetItem()" style="background-color: #0288d1; color: white; border-radius: 6px; font-weight:bold;">إضافة</button>
                 </div>
-                <p style="font-size: 12px; color: gray;">* الأصناف تظهر مباشرة في قائمة الأجهزة بمجرد إضافتها.</p>
             </div>
         </div>
 
-        <h2 style="color: #3e2723; text-align: center; margin-bottom: 20px;">🎮 التحكم المباشر بالأجهزة والصالة</h2>
+        <h2 style="color: #3e2723; text-align: center; margin-bottom: 20px;">🎮 التحكم المباشر بالأجهزة والبيع المباشر</h2>
         <div class="container" id="admin-devices-container"></div>
 
         <div class="table-section">
@@ -163,17 +160,14 @@
         });
         function logout() { firebase.auth().signOut().then(() => { localStorage.removeItem("loggedUserEmail"); window.location.href = "login.html"; }); }
         
-        // دوال القائمة الجانبية (Sidebar)
         function openNav() { document.getElementById("mySidebar").style.width = "300px"; }
         function closeNav() { document.getElementById("mySidebar").style.width = "0"; }
-
-        // دوال المودال
         function openWorkerModal() { document.getElementById('workerModal').style.display = "flex"; }
         function closeWorkerModal() { document.getElementById('workerModal').style.display = "none"; }
         function openSettingsModal() { document.getElementById('settingsModal').style.display = "flex"; }
         function closeSettingsModal() { document.getElementById('settingsModal').style.display = "none"; }
 
-        let startTimes = {}; let cafeAccounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; let cafeOrdersText = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+        let startTimes = {}; let cafeAccounts = { 1: 0, 2: 0, 3: 0, 4: 0 }; let cafeOrdersText = { 1: [], 2: [], 3: [], 4: [] };
         let currentPrices = { ps5Single: 30, ps5Multi: 40, ps4Single: 20, ps4Multi: 30 };
         let globalBuffet = [];
 
@@ -184,10 +178,7 @@
         }
 
         function savePrices() {
-            let p = {
-                ps5Single: Number(document.getElementById('price-ps5-single').value), ps5Multi: Number(document.getElementById('price-ps5-multi').value),
-                ps4Single: Number(document.getElementById('price-ps4-single').value), ps4Multi: Number(document.getElementById('price-ps4-multi').value)
-            };
+            let p = { ps5Single: Number(document.getElementById('price-ps5-single').value), ps5Multi: Number(document.getElementById('price-ps5-multi').value), ps4Single: Number(document.getElementById('price-ps4-single').value), ps4Multi: Number(document.getElementById('price-ps4-multi').value) };
             db.collection("settings").doc("prices").set(p).then(() => { alert("تم تحديث أسعار الألعاب بنجاح!"); closeSettingsModal(); });
         }
 
@@ -197,23 +188,20 @@
             db.collection("buffetMenu").add({ name: name, price: price }).then(() => { alert(`تم إضافة ${name} للبوفيه!`); document.getElementById('new-item-name').value = ""; document.getElementById('new-item-price').value = ""; });
         }
 
-        // بناء الأجهزة (1-4 ألعاب، 5 صالة)
         const container = document.getElementById('admin-devices-container');
-        for(let i=1; i<=5; i++) {
-            let isLounge = i === 5;
-            let title = isLounge ? "🛋️ طلبات الصالة والطاولات" : `جهاز (${i}) - ${i<=2?'PS5':'PS4'}`;
-            let inputsHtml = isLounge ? `<input type="hidden" id="mode-${i}" value="lounge"><input type="hidden" id="limit-${i}" value="0">` : `<select id="mode-${i}"><option value="">-- نوع اللعب --</option><option value="single">سنجل</option><option value="multi">مالتي</option></select><input type="number" id="limit-${i}" placeholder="وقت اللعب بالدقائق (اكتب 0 للمفتوح) *" required>`;
-            
+        // بناء الـ 4 أجهزة الأساسية
+        for(let i=1; i<=4; i++) {
             container.innerHTML += `
             <div class="device-card" id="card-${i}">
-                <h3>${title}</h3>
+                <h3>جهاز (${i}) - ${i<=2?'PS5':'PS4'}</h3>
                 <div class="status-badge" id="status-${i}">الحالة: متوقف</div>
                 <div class="time-display" id="time-daily-${i}" style="background-color: #e8f5e9;">تشغيل اليوم: 0س 0د 0ث</div>
-                ${!isLounge ? `<div class="time-display" id="time-live-${i}">العداد اللايف: 00:00:00</div>` : ''}
+                <div class="time-display" id="time-live-${i}">العداد اللايف: 00:00:00</div>
                 <div class="time-display" id="time-info-${i}">وقت البدء: لم يبدأ</div>
                 
                 <input type="text" id="customer-${i}" placeholder="اسم العميل *">
-                ${inputsHtml}
+                <select id="mode-${i}"><option value="">-- نوع اللعب --</option><option value="single">سنجل</option><option value="multi">مالتي</option></select>
+                <input type="number" id="limit-${i}" placeholder="وقت اللعب بالدقائق (اكتب 0 للمفتوح) *" required>
                 
                 <div class="flex-row">
                     <select id="product-${i}"><option value="0">اختر مشروب...</option></select>
@@ -222,12 +210,23 @@
                 </div>
                 
                 <div style="font-size:14px; margin:15px 0; font-weight:bold; text-align:center;"><span id="current-total-${i}">حساب البوفيه الحالي = 0 ج</span></div>
-                <button class="btn-start" id="start-btn-${i}" onclick="startDevice(${i})">${isLounge ? 'فتح ترابيزة للصالة' : 'بدء اللعب'}</button>
+                <button class="btn-start" id="start-btn-${i}" onclick="startDevice(${i})">بدء اللعب</button>
                 <button class="btn-stop" id="stop-btn-${i}" onclick="stopDevice(${i})" disabled>إنهاء وتصفية الحساب</button>
             </div>`;
         }
 
-        // جلب الإعدادات والبوفيه
+        // كارت البيع المباشر (طياري) - منفصل تماماً
+        container.innerHTML += `
+        <div class="device-card" id="card-5" style="border-top-color: #2e7d32;">
+            <h3 style="color: #2e7d32;">🛒 بيع بوفيه مباشر (طياري)</h3>
+            <p style="font-size: 13px; color: #5d4037; font-weight: bold; margin-bottom: 15px;">يضيف للإيراد فوراً بدون اسم أو طاولة</p>
+            <div class="flex-row">
+                <select id="product-5"><option value="0">اختر المنتج...</option></select>
+                <input type="number" id="qty-5" placeholder="العدد" style="width:65px;" value="1">
+            </div>
+            <button class="btn-start" style="background-color: #2e7d32; width: 100%; margin-top: 15px; font-size: 16px; padding: 15px;" onclick="sellDirectBuffet()">💰 بيع وإضافة للإيراد (كاش)</button>
+        </div>`;
+
         db.collection("settings").doc("prices").onSnapshot(doc => {
             if(doc.exists) {
                 currentPrices = doc.data();
@@ -238,10 +237,10 @@
 
         db.collection("buffetMenu").onSnapshot(snap => {
             globalBuffet = []; snap.forEach(d => globalBuffet.push(d.data()));
-            for(let i=1; i<=5; i++) {
+            for(let i=1; i<=5; i++) { // للـ 4 أجهزة + كارت البيع المباشر
                 let sel = document.getElementById(`product-${i}`);
                 if(sel) {
-                    sel.innerHTML = `<option value="0">اختر مشروب...</option>`;
+                    sel.innerHTML = `<option value="0">اختر مشروب/منتج...</option>`;
                     globalBuffet.forEach(item => { sel.innerHTML += `<option value="${item.price}" data-name="${item.name}">${item.name} (${item.price} ج)</option>`; });
                 }
             }
@@ -255,7 +254,6 @@
             }
         });
 
-        // تشغيل العداد الحي وتنبيه الوقت
         setInterval(() => {
             let now = new Date();
             for(let i=1; i<=4; i++) {
@@ -263,7 +261,6 @@
                     let diffSec = Math.floor((now - startTimes[i])/1000);
                     let h = String(Math.floor(diffSec/3600)).padStart(2,'0'); let m = String(Math.floor((diffSec%3600)/60)).padStart(2,'0'); let s = String(diffSec%60).padStart(2,'0');
                     document.getElementById(`time-live-${i}`).innerText = `العداد اللايف: ${h}:${m}:${s}`;
-                    
                     let limitVal = Number(document.getElementById(`limit-${i}`).value);
                     if(limitVal > 0 && diffSec >= (limitVal * 60)) { document.getElementById(`card-${i}`).classList.add('timeout'); } 
                     else { document.getElementById(`card-${i}`).classList.remove('timeout'); }
@@ -271,77 +268,6 @@
             }
         }, 1000);
 
-        function saveProductToDevice(id) {
-            let productSelect = document.getElementById(`product-${id}`); let qty = Number(document.getElementById(`qty-${id}`).value); let price = Number(productSelect.value); 
-            if (price === 0 || qty <= 0) return alert("اختر المشروب والعدد!"); 
-            let name = productSelect.options[productSelect.selectedIndex].getAttribute('data-name'); 
-            cafeAccounts[id] += (price * qty); cafeOrdersText[id].push(`${name} (x${qty})`); 
-            document.getElementById(`current-total-${id}`).innerText = `حساب البوفيه الحالي = ${cafeAccounts[id]} ج`; productSelect.value = "0"; document.getElementById(`qty-${id}`).value = "";
-        }
-
-        function startDevice(id) {
-            let customerInput = document.getElementById(`customer-${id}`); let modeSelect = document.getElementById(`mode-${id}`); let limitInput = document.getElementById(`limit-${id}`);
-            if (customerInput.value.trim() === "") return alert("يجب كتابة اسم العميل!");
-            if (id !== 5) {
-                if (modeSelect.value === "") return alert("يجب اختيار نوع اللعب!");
-                if (limitInput.value === "") return alert("يجب تحديد وقت اللعب! اكتب 0 لو الوقت مفتوح.");
-            }
-            customerInput.disabled = true; modeSelect.disabled = true; limitInput.disabled = true; startTimes[id] = new Date(); document.getElementById(`card-${id}`).classList.add('active'); 
-            let status = document.getElementById(`status-${id}`); status.innerText = id===5 ? "مفتوح طلبات" : "شغال حالياً"; status.classList.add('running'); 
-            document.getElementById(`time-info-${id}`).innerText = "وقت البدء: " + startTimes[id].toLocaleTimeString('ar-EG'); document.getElementById(`start-btn-${id}`).disabled = true; document.getElementById(`stop-btn-${id}`).disabled = false;
-        }
-
-        function stopDevice(id) {
-            let endTime = new Date(); let startTime = startTimes[id]; let totalSeconds = Math.max(Math.floor((endTime - startTime) / 1000), 1); 
-            let hrs = Math.floor(totalSeconds / 3600); let mins = Math.floor((totalSeconds % 3600) / 60); let durationText = `${hrs} س و ${mins} د`; 
-            
-            let playCost = 0;
-            if(id !== 5) {
-                let modeSelect = document.getElementById(`mode-${id}`);
-                let rate = 0;
-                if(id <= 2) rate = (modeSelect.value === "single") ? currentPrices.ps5Single : currentPrices.ps5Multi;
-                else rate = (modeSelect.value === "single") ? currentPrices.ps4Single : currentPrices.ps4Multi;
-                playCost = Math.max(Math.round((totalSeconds / 3600) * rate), 1);
-                
-                // حفظ وقت الاستهلاك اليومي في فايربيس
-                db.collection("settings").doc("dailyUsage").set({ [`dev${id}`]: firebase.firestore.FieldValue.increment(totalSeconds) }, {merge: true});
-            } else {
-                durationText = "صالة/خارجي";
-            }
-
-            let totalBill = playCost + cafeAccounts[id]; let dateStr = new Date().toLocaleString('ar-EG'); let devName = id === 5 ? "الصالة" : `جهاز (${id})`;
-            
-            db.collection("currentShift").add({ customer: document.getElementById(`customer-${id}`).value, device: devName, play: playCost, cafeItems: cafeOrdersText[id].join(' + ') || "لا يوجد", cafe: cafeAccounts[id], total: totalBill, duration: durationText, dateStr: dateStr, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            db.collection("settings").doc("shift").update({ totalCash: firebase.firestore.FieldValue.increment(totalBill) });
-            
-            setTimeout(() => { 
-                document.getElementById(`card-${id}`).classList.remove('active', 'timeout'); document.getElementById(`status-${id}`).className = "status-badge"; document.getElementById(`status-${id}`).innerText = "الحالة: متوقف"; 
-                let cust = document.getElementById(`customer-${id}`); cust.disabled = false; cust.value = ""; 
-                let modeSelect = document.getElementById(`mode-${id}`); modeSelect.disabled = false; modeSelect.value = ""; 
-                let limitInput = document.getElementById(`limit-${id}`); limitInput.disabled = false; limitInput.value = id===5 ? "0" : "";
-                if(id!==5) document.getElementById(`time-live-${id}`).innerText = "العداد اللايف: 00:00:00";
-                document.getElementById(`start-btn-${id}`).disabled = false; document.getElementById(`stop-btn-${id}`).disabled = true; document.getElementById(`current-total-${id}`).innerText = "حساب البوفيه الحالي = 0 ج"; 
-            }, 1000);
-            
-            cafeAccounts[id] = 0; cafeOrdersText[id] = []; delete startTimes[id];
-        }
-
-        db.collection("settings").doc("shift").onSnapshot((doc) => { if(doc.exists) { let d = doc.data(); document.getElementById('admin-cash').innerText = d.totalCash || 0; document.getElementById('admin-expenses').innerText = d.totalExpenses || 0; document.getElementById('admin-net').innerText = (d.totalCash || 0) - (d.totalExpenses || 0); } });
-        db.collection("currentShift").orderBy("timestamp", "desc").onSnapshot((snap) => { let html = ""; snap.forEach(doc => { let inv = doc.data(); html += `<tr><td>${inv.dateStr || ''}</td><td>${inv.customer}</td><td>${inv.device}</td><td>${inv.cafeItems}</td><td>${inv.cafe} ج</td><td>${inv.duration}</td><td style="color:#d84315; font-weight:bold;">${inv.total} ج</td><td><input type="text" id="phone-${doc.id}" placeholder="رقم العميل" style="width:100px; margin:0;"><button onclick="sendCustomWhatsApp('${doc.id}', '${inv.customer}', '${inv.device}', '${inv.duration}', ${inv.play}, '${inv.cafeItems}', ${inv.cafe}, ${inv.total})" style="background:#25D366; color:white; padding:5px;">💬 إرسال</button></td></tr>`; }); document.getElementById('current-log').innerHTML = html; });
-        db.collection("archive").orderBy("timestamp", "desc").onSnapshot((snap) => { let html = ""; snap.forEach(doc => { let inv = doc.data(); html += `<tr><td>${inv.dateStr || ''}</td><td>${inv.customer}</td><td>${inv.device}</td><td>${inv.cafeItems}</td><td>${inv.cafe} ج</td><td>${inv.duration}</td><td>${inv.total} ج</td></tr>`; }); document.getElementById('archive-log').innerHTML = html; });
-
-        function sendCustomWhatsApp(id, cust, dev, dur, play, cafeItems, cafe, tot) { let phone = document.getElementById(`phone-${id}`).value.trim(); if(!phone) return alert("أدخل رقم العميل!"); if (phone.startsWith("0")) phone = "2" + phone.substring(1); let message = `مرحباً بك في بلايستيشن اَلْحَاوِي 🎮\nفاتورة جلستك يا أستاذ *${cust}*:\nالجهاز/المكان: ${dev}\nالوقت: ${dur}\nالحساب الإجمالي: ${tot} جنيه`; window.location.href = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`; }
-        
-        async function closeShift() { 
-            if(!confirm("هل أنت متأكد من تقفيل الوردية الحالية؟")) return; 
-            let currentDocs = await db.collection("currentShift").get(); let batch = db.batch(); currentDocs.forEach(doc => { batch.set(db.collection("archive").doc(), doc.data()); batch.delete(doc.ref); }); 
-            let expensesDocs = await db.collection("expenses").get(); expensesDocs.forEach(doc => batch.delete(doc.ref)); 
-            batch.set(db.collection("settings").doc("shift"), { totalCash: 0, totalExpenses: 0 }); 
-            batch.set(db.collection("settings").doc("dailyUsage"), { dev1:0, dev2:0, dev3:0, dev4:0 }); // تصفير عداد اليوم
-            await batch.commit(); alert("تم تقفيل الوردية وتصفير العدادات اليومية! 🔒"); 
-        }
-        
-        async function clearArchive() { if(!confirm("تحذير: هل تريد مسح الأرشيف نهائياً؟ لا يمكن استرجاعه!")) return; let docs = await db.collection("archive").get(); let batch = db.batch(); docs.forEach(doc => batch.delete(doc.ref)); await batch.commit(); alert("تم الحذف بالكامل."); }
-    </script>
-</body>
-</html>
+        // دالة البيع المباشر (طياري)
+        function sellDirectBuffet() {
+            let productSelect = document.getElementById('product-5'); let qtyInp
