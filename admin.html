@@ -2,13 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>👑 لوحة الإدارة الشاملة - بلايستيشن اَلْحَاوِي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 لوحة الإدارة الشاملة - بلايستيشن الحاوي</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ede3d4; margin: 0; padding: 0; color: #3e2723; }
         .header-bar { background-color: #1b0000; padding: 25px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); margin-bottom: 25px; position: relative; }
         .shop-title { font-size: 30px; font-weight: bold; color: #ff9800; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
         
-        /* زرار تسجيل الخروج فوق ع الشمال */
         .btn-logout { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background-color: #b71c1c; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-logout:hover { background-color: #e53935; }
 
@@ -18,39 +18,51 @@
         .box span { display: block; font-size: 28px; color: #d84315; margin-top: 10px; }
         
         .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fffaf0; padding: 30px; border-radius: 15px; width: 450px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); border: 2px solid #8d6e63; position: relative; text-align: center; }
+        .modal-content { background-color: #fffaf0; padding: 30px; border-radius: 15px; width: 450px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); border: 2px solid #8d6e63; position: relative; text-align: center; max-height: 90vh; overflow-y: auto; }
         .close-btn { position: absolute; left: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #bf360c; font-weight: bold; }
         
         .checkbox-group { display: flex; flex-direction: column; gap: 10px; text-align: right; margin: 20px 0; background: #f5ebe0; padding: 15px; border-radius: 8px; border: 1px solid #d7ccc8; }
         .checkbox-group label { font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: bold; }
         
-        .container { display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
-        .device-card { background-color: #fffaf0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; width: 310px; border: 2px solid #d7ccc8; border-top: 6px solid #a1887f; }
-        .device-card.active { border-top-color: #d84315; border-color: #d84315; }
-        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 5px; font-size: 14px; background-color: #bcaaa4; color: #3e2723; margin-bottom: 15px; font-weight: bold; }
-        .status-badge.running { background-color: #ffcc80; color: #e65100; }
-        .time-display { font-size: 13px; color: #5d4037; margin-bottom: 10px; background: #f5ebe0; padding: 6px; border-radius: 4px; border: 1px solid #e0d4c3; }
-        
-        select, input { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #bcaaa4; border-radius: 6px; box-sizing: border-box; }
-        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .btn-inline { width: auto; background-color: #8d6e63; color: white; padding: 0 15px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
-        
-        button { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .btn-start { background-color: #4e342e; color: white; width: 100%; margin-bottom:6px; } 
-        .btn-stop { background-color: #bf360c; color: white; width: 100%; }
-        .btn-action { padding: 15px 30px; font-size: 16px; color: white; border-radius: 8px; margin: 10px; }
-        
         .table-section { background: #fffaf0; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #d7ccc8; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; min-width: 1100px; text-align: center; }
-        th, td { border: 1px solid #d7ccc8; padding: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; text-align: center; }
+        th, td { border: 1px solid #d7ccc8; padding: 10px; }
         th { background-color: #5d4037; color: white; }
         tr:nth-child(even) { background-color: #fdf8f2; }
+        
+        .action-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 35px; flex-wrap: wrap; }
+        .btn-action { padding: 15px 30px; font-size: 16px; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-action:hover { transform: scale(1.05); }
+        .btn-add { background-color: #ff9800; }
+        .btn-close { background-color: #d84315; }
+        .btn-clear { background-color: #b71c1c; }
+
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .status-active { background-color: #ffcc80; color: #e65100; }
+        .status-closed { background-color: #bcaaa4; color: #3e2723; }
+
+        input, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #bcaaa4; border-radius: 6px; box-sizing: border-box; }
+        button { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+
+        .live-update { background-color: #fff9c4; padding: 10px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #fbc02d; }
+
+        /* ستايل منظومة الأجهزة المضافة للأدمن */
+        .container { display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; margin-top: 20px; }
+        .device-card { background-color: #fffaf0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 20px; width: 310px; border: 2px solid #5d4037; border-top: 6px solid #ff9800; text-align: right; }
+        .device-card.active { border-top-color: #d84315; border-color: #d84315; }
+        .device-card h3 { margin-top: 0; text-align: center; color: #3e2723; }
+        .time-display { font-size: 13px; color: #5d4037; margin-bottom: 10px; background: #f5ebe0; padding: 6px; border-radius: 4px; text-align: center; }
+        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .btn-inline { width: auto; background-color: #8d6e63; color: white; padding: 0 15px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-start { background-color: #4e342e; color: white; width: 100%; margin-bottom: 6px; }
+        .btn-stop { background-color: #bf360c; color: white; width: 100%; }
+        .status-badge.running { background-color: #ffcc80; color: #e65100; }
     </style>
 </head>
 <body>
 
     <div class="header-bar">
-        <h1 class="shop-title">👑 لوحة الإدارة والتحكم الكامل - بلايستيشن اَلْحَاوِي</h1>
+        <h1 class="shop-title">👑 لوحة الإدارة والتحكم الكامل - بلايستيشن الحاوي</h1>
         <button class="btn-logout" onclick="logout()">🚪 تسجيل الخروج</button>
     </div>
 
@@ -58,57 +70,113 @@
         <div class="dashboard">
             <div class="box">إجمالي الإيراد <span id="admin-cash">0</span> ج</div>
             <div class="box">إجمالي المصروفات <span id="admin-expenses">0</span> ج</div>
-            <div class="box">الصافي الفعلي بالدرج <span id="admin-net" style="color: green;">0</span> ج</div>
+            <div class="box">الصافي الفعلي <span id="admin-net" style="color: green;">0</span> ج</div>
         </div>
 
-        <div style="text-align: center; margin-bottom: 35px;">
-            <button class="btn-action" style="background-color: #ff9800; color: #1b0000;" onclick="openWorkerModal()">➕ إنشاء حساب عامل جديد</button>
-            <button class="btn-action" style="background-color: #d84315;" onclick="closeShift()">🔒 تقفيل الوردية وترحيل البيانات</button>
-            <button class="btn-action" style="background-color: #b71c1c;" onclick="clearArchive()">🗑️ مسح الأرشيف نهائياً</button>
+        <div class="action-buttons">
+            <button class="btn-action btn-add" onclick="openWorkerModal()">➕ إنشاء حساب عامل جديد</button>
+                <button class="btn-action" style="background-color: #4e342e;" onclick="openPricesModal()">⚙️ تعديل الأسعار والبوفيه</button>
+            <button class="btn-action btn-close" onclick="closeShift()">🔒 تقفيل الوردية</button>
+            <button class="btn-action btn-clear" onclick="clearArchive()">🗑️ مسح الأرشيف</button>
         </div>
 
-        <div class="modal" id="workerModal">
+                <div class="modal" id="workerModal">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeWorkerModal()">&times;</span>
-                <h3 style="color: #3e2723; margin-top: 0;">🛠️ إنشاء حساب عامل وصلاحياته</h3>
-                <input type="text" id="worker-name" placeholder="اسم العامل الجديد">
-                <input type="email" id="worker-email" placeholder="البريد الإلكتروني (اليوزر)">
-                <input type="text" id="worker-pass" placeholder="كلمة السر (الباسورد)">
-                <p style="text-align: right; margin: 15px 0 5px 0; font-weight: bold; color: #5d4037;">🔒 صلاحيات العامل بالسيستم:</p>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="p-view-cash" checked> رؤية إجمالي إيراد وصافي درج الوردية</label>
-                    <label><input type="checkbox" id="p-add-expense" checked> تسجيل وخصم مصروفات الوردية</label>
-                    <label><input type="checkbox" id="p-add-buffet" checked> إضافة مشروبات وطلبات بوفيه للأجهزة</label>
-                    <label><input type="checkbox" id="p-stop-device" checked> إنهاء حساب الأجهزة وإصدار الفواتير</label>
+                <h3 style="color: #3e2723; margin-top: 0;">🛠️ إنشاء حساب عامل جديد</h3>
+                <input type="text" id="worker-name" placeholder="اسم العامل">
+                <input type="tel" id="worker-phone" placeholder="رقم الهاتف">
+                
+                <div style="display: flex; align-items: center; direction: ltr; margin-bottom: 12px;">
+                    <span style="background: #bcaaa4; padding: 10px; border: 1px solid #bcaaa4; border-radius: 6px 0 0 6px; font-weight: bold; color: #3e2723;">@el7awe.com</span>
+                    <input type="text" id="worker-email" placeholder="username" style="margin-bottom: 0; border-radius: 0 6px 6px 0; text-align: left;">
                 </div>
-                <button onclick="createWorkerAccount()" style="background-color: #d84315; color: white; width: 100%; font-size: 16px;">حفظ وتفعيل الحساب الحين</button>
+
+                <input type="password" id="worker-pass" placeholder="كلمة السر">
+                <p style="text-align: right; margin: 15px 0 5px 0; font-weight: bold; color: #5d4037;">🔒 صلاحيات العامل:</p>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="p-view-cash" checked> رؤية الإيراد والصافي</label>
+                    <label><input type="checkbox" id="p-add-expense" checked> تسجيل المصروفات</label>
+                    <label><input type="checkbox" id="p-add-buffet" checked> إضافة مشروبات</label>
+                    <label><input type="checkbox" id="p-stop-device" checked> إنهاء الأجهزة</label>
+                </div>
+                <button onclick="createWorkerAccount()" style="background-color: #d84315; color: white; width: 100%; font-size: 16px;">✓ حفظ الحساب</button>
+            </div>
+        </div>
+                <div class="modal" id="pricesModal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closePricesModal()">&times;</span>
+                
+                <h3 style="color: #3e2723; margin-top: 0; border-bottom: 2px solid #5d4037; padding-bottom: 5px;">🎮 تعديل أسعار اللعب (للساعة)</h3>
+                <label style="display:block; text-align:right; font-weight:bold; font-size: 13px;">سعر ساعة PS5 سنجل:</label>
+                <input type="number" id="price-ps5-single">
+                <label style="display:block; text-align:right; font-weight:bold; font-size: 13px;">سعر ساعة PS5 مالتي:</label>
+                <input type="number" id="price-ps5-multi">
+                <label style="display:block; text-align:right; font-weight:bold; font-size: 13px;">سعر ساعة PS4 سنجل:</label>
+                <input type="number" id="price-ps4-single">
+                <label style="display:block; text-align:right; font-weight:bold; font-size: 13px;">سعر ساعة PS4 مالتي:</label>
+                <input type="number" id="price-ps4-multi">
+                <button onclick="saveDevicePrices()" style="background-color: #4e342e; color: white; width: 100%; margin-bottom: 20px;">✓ حفظ أسعار الأجهزة</button>
+
+                <h3 style="color: #3e2723; margin-top: 20px; border-bottom: 2px solid #5d4037; padding-bottom: 5px;">☕ إدارة مشروبات البوفيه</h3>
+                <input type="text" id="prod-name" placeholder="اسم المشروب الجديد أو المراد تعديله">
+                <input type="number" id="prod-price" placeholder="السعر (جنيه)">
+                <button onclick="saveProduct()" style="background-color: #ff9800; color: white; width: 100%;">➕ إضافة / تعديل المشروب</button>
+                
+                <div style="margin-top: 15px; max-height: 200px; overflow-y: auto; border: 1px solid #d7ccc8; border-radius:6px;">
+                    <table style="margin-top:0; font-size:12px;">
+                        <thead><tr><th>المشروب</th><th>السعر</th><th>إجراء</th></tr></thead>
+                        <tbody id="admin-products-list"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <h2 style="color: #3e2723; text-align: center; margin-bottom: 20px;">🎮 التحكم المباشر بالأجهزة من شاشتك</h2>
-        <div class="container" id="admin-devices-container"></div>
+        <div class="table-section">
+            <h2>🎮 لوحة التحكم الفوري بالأجهزة (صلاحيات المالك)</h2>
+            <div class="container" id="admin-devices-container"></div>
+        </div>
 
         <div class="table-section">
-            <h2>📋 فواتير الوردية الحالية (تفصيلي + واتساب العميل)</h2>
+            <h2>🎮 الجلسات النشطة الآن (مزامنة لحظية)</h2>
+            <div class="live-update" id="liveStatus">✓ متصل - جاري المراقبة الإدارية</div>
             <table>
-                <thead><tr><th>التاريخ والوقت</th><th>اسم العميل</th><th>رقم الجهاز</th><th>طلبات البوفيه</th><th>إجمالي البوفيه</th><th>إجمالي وقت اللعب</th><th>إجمالي الفاتورة</th><th>إرسال الفاتورة للعميل</th></tr></thead>
+                <thead><tr><th>الجهاز</th><th>العميل</th><th>الموظف</th><th>نوع اللعب</th><th>وقت البدء</th><th>المشروبات</th><th>الحالة</th></tr></thead>
+                <tbody id="active-sessions-table"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section">
+            <h2>💰 المصروفات المسجلة (مع خصمها من الصافي)</h2>
+            <table>
+                <thead><tr><th>التاريخ والوقت</th><th>الموظف</th><th>الفئة</th><th>الوصف</th><th>المبلغ</th></tr></thead>
+                <tbody id="expenses-table"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section">
+            <h2>📋 فواتير الوردية الحالية</h2>
+            <table>
+                <thead><tr><th>التاريخ والوقت</th><th>العميل</th><th>الجهاز</th><th>المشروبات</th><th>الإجمالي</th><th>الموظف</th></tr></thead>
                 <tbody id="current-log"></tbody>
             </table>
         </div>
 
         <div class="table-section">
-            <h2>🗄️ الأرشيف الدائم (الورديات السابقة والمرحلة)</h2>
+            <h2>🗄️ الأرشيف (الورديات السابقة)</h2>
             <table>
-                <thead><tr><th>التاريخ والوقت</th><th>اسم العميل</th><th>رقم الجهاز</th><th>طلبات البوفيه</th><th>إجمالي البوفيه</th><th>إجمالي وقت اللعب</th><th>إجمالي الفاتورة</th></tr></thead>
+                <thead><tr><th>التاريخ والوقت</th><th>العميل</th><th>الجهاز</th><th>المشروبات</th><th>الإجمالي</th></tr></thead>
                 <tbody id="archive-log"></tbody>
             </table>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script>
+    <script type="module">
+        import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { getFirestore, collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, setDoc, updateDoc, getDocs, deleteDoc, increment, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyD4viBlsx5jHmtpjfKyhDBJCJNLRM-Uduk",
             authDomain: "system-el7awe.firebaseapp.com",
@@ -117,73 +185,451 @@
             messagingSenderId: "938519562478",
             appId: "1:938519562478:web:da31c7a27df6463c5f8bff"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
 
-        // حماية الصفحة: لو مش مسجل دخول يرجعه للوجين
-        firebase.auth().onAuthStateChanged((user) => {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        enableIndexedDbPersistence(db).catch(() => {});
+
+        // التحقق من الأدمن
+        onAuthStateChanged(auth, (user) => {
             if (!user || user.email.toLowerCase() !== "admin@el7awe.com") {
                 window.location.href = "login.html";
             }
         });
 
-        // دالة تسجيل الخروج
-        function logout() {
-            firebase.auth().signOut().then(() => {
-                localStorage.removeItem("loggedUserEmail");
-                window.location.href = "login.html";
-            });
+        window.logout = async () => {
+            await signOut(auth);
+            localStorage.clear();
+            window.location.href = "login.html";
         }
 
-        let startTimes = {}; let cafeAccounts = { 1: 0, 2: 0, 3: 0, 4: 0 }; let cafeOrdersText = { 1: [], 2: [], 3: [], 4: [] }; 
-        function openWorkerModal() { document.getElementById('workerModal').style.display = "flex"; }
-        function closeWorkerModal() { document.getElementById('workerModal').style.display = "none"; }
+        window.openWorkerModal = () => { document.getElementById('workerModal').style.display = "flex"; }
+        window.closeWorkerModal = () => { document.getElementById('workerModal').style.display = "none"; }
+        window.openPricesModal = () => { document.getElementById('pricesModal').style.display = "flex"; }
+window.closePricesModal = () => { document.getElementById('pricesModal').style.display = "none"; }
 
-        function createWorkerAccount() {
-            let name = document.getElementById('worker-name').value.trim();
-            let email = document.getElementById('worker-email').value.trim().toLowerCase();
-            let pass = document.getElementById('worker-pass').value.trim();
-            if(!name || !email || !pass) return alert("برجاء ملء كافة بيانات العامل!");
-            db.collection("users").doc(email).set({
-                name: name, email: email, password: pass, role: "worker",
-                canViewCash: document.getElementById('p-view-cash').checked,
-                canAddExpense: document.getElementById('p-add-expense').checked,
-                canAddBuffet: document.getElementById('p-add-buffet').checked,
-                canStopDevice: document.getElementById('p-stop-device').checked
-            }).then(() => {
-                alert(`🎉 تم بنجاح إنشاء حساب العامل (${name})!`);
+
+        // إنشاء حساب عامل جديد
+        // إنشاء حساب عامل جديد في الـ Auth والـ Firestore معاً
+                // إنشاء حساب عامل جديد بدون طرد الأدمن من الجلسة
+                // إنشاء حساب عامل جديد - يدعم الاسم بالعربي تماماً وبدون خروج للأدمن
+        window.createWorkerAccount = async () => {
+            const name = document.getElementById('worker-name').value.trim();
+            const emailPrefix = document.getElementById('worker-email').value.trim().toLowerCase();
+            const pass = document.getElementById('worker-pass').value.trim();
+
+            if(!name || !emailPrefix || !pass) return alert("برجاء ملء جميع البيانات!");
+            if(pass.length < 6) return alert("يجب أن تكون كلمة السر 6 أحرف أو أرقام على الأقل!");
+
+            // دمج الإيميل مع النطاق الإجباري (إنجليزي)
+            const fullEmail = `${emailPrefix}@el7awe.com`;
+
+            try {
+                // إنشاء تطبيق فايربيز مؤقت في الخلفية لحماية جلسة الأدمن الحالية من الخروج
+                const tempApp = initializeApp(firebaseConfig, "TemporaryUserCreator");
+                const tempAuth = getAuth(tempApp);
+
+                // 1. إنشاء الحساب في الـ Authentication الخاص بالفايربيز
+                await createUserWithEmailAndPassword(tempAuth, fullEmail, pass);
+                
+                // 2. حفظ البيانات في Firestore (الاسم العربي بيتحفظ هنا جوه المستند بأمان)
+                await setDoc(doc(db, "users", fullEmail), {
+                    name: name, // الاسم العربي مسجل هنا ومحمي تماماً
+                    email: fullEmail,
+                    role: "worker",
+                    canViewCash: document.getElementById('p-view-cash').checked,
+                    canAddExpense: document.getElementById('p-add-expense').checked,
+                    canAddBuffet: document.getElementById('p-add-buffet').checked,
+                    canStopDevice: document.getElementById('p-stop-device').checked,
+                    createdAt: serverTimestamp(),
+                    createdBy: auth.currentUser.email
+                });
+
+                // 3. تسجيل خروج وتنظيف التطبيق المؤقت فوراً
+                await tempAuth.signOut();
+                try { await tempApp.delete(); } catch(e){}
+
+                alert(`✓ تم إنشاء حساب العامل بنجاح!\nالاسم: ${name}\nالإيميل: ${fullEmail}`);
+                
+                // تفريغ الحقول وإغلاق النافذة
+                document.getElementById('worker-name').value = "";
+                document.getElementById('worker-email').value = "";
+                document.getElementById('worker-pass').value = "";
                 closeWorkerModal();
+
+            } catch(e) {
+                if (e.code === "auth/email-already-in-use") {
+                    alert("⚠️ هذا الحساب مسجل بالفعل في النظام!");
+                } else {
+                    alert("خطأ أثناء إنشاء الحساب: " + e.message);
+                }
+            }
+        }
+
+
+        // إدراج نفس واجهة تشغيل وتحكم الأجهزة لمالك الصالة (الأدمن)
+        const devices = [
+            { id: 1, type: "PS5", singlePrice: 30, multiPrice: 40 },
+            { id: 2, type: "PS5", singlePrice: 30, multiPrice: 40 },
+            { id: 3, type: "PS4", singlePrice: 20, multiPrice: 30 },
+            { id: 4, type: "PS4", singlePrice: 20, multiPrice: 30 }
+        ];
+
+        let activeSessionsData = {};
+        const devContainer = document.getElementById('admin-devices-container');
+        devContainer.innerHTML = "";
+        devices.forEach(device => {
+            devContainer.innerHTML += `
+                <div class="device-card" id="card-${device.id}">
+                    <h3>جهاز (${device.id}) - ${device.type}</h3>
+                    <div class="status-badge" id="status-${device.id}">الحالة: متوقف</div>
+                    <div class="time-display" id="time-info-${device.id}">وقت البدء: لم يبدأ</div>
+                    <input type="text" id="customer-${device.id}" placeholder="اسم العميل *">
+                    <select id="mode-${device.id}">
+                        <option value="">-- نوع اللعب --</option>
+                        <option value="single">سنجل (${device.singlePrice} ج/ساعة)</option>
+                        <option value="multi">مالتي (${device.multiPrice} ج/ساعة)</option>
+                    </select>
+                    <div class="flex-row">
+                        <select id="product-${device.id}">
+                            <option value="0">اختر مشروب...</option>
+                            <option value="20" data-name="شاي">شاي (20 ج)</option>
+                            <option value="30" data-name="قهوة">قهوة (30 ج)</option>
+                            <option value="25" data-name="عصير">عصير (25 ج)</option>
+                        </select>
+                        <input type="number" id="qty-${device.id}" placeholder="العدد" style="width:65px;">
+                        <button class="btn-inline" onclick="saveProductToDevice(${device.id})">➕</button>
+                    </div>
+                    <div style="font-size:14px; margin:15px 0; font-weight:bold; text-align:center;">
+                        <span id="current-total-${device.id}">حساب البوفيه = 0 ج</span>
+                    </div>
+                    <button class="btn-start" id="start-btn-${device.id}" onclick="startDevice(${device.id})">بدء اللعب</button>
+                    <button class="btn-stop" id="stop-btn-${device.id}" onclick="stopDevice(${device.id})" disabled>إنهاء الحساب</button>
+                </div>
+            `;
+        });
+
+        // مزامنة الأجهزة لحظياً عند الأدمن
+        onSnapshot(query(collection(db, "activeSessions"), where("status", "==", "active")), (snapshot) => {
+            devices.forEach(d => { if (!activeSessionsData[d.id]) resetDeviceUI(d.id); });
+            activeSessionsData = {};
+
+            let tableHtml = "";
+            snapshot.forEach(docSnap => {
+                const session = docSnap.data();
+                const dId = session.deviceId;
+                activeSessionsData[dId] = { docId: docSnap.id, ...session };
+
+                // تحديث الـ UI الكروت للأدمن
+                if(document.getElementById(`card-${dId}`)){
+                    document.getElementById(`card-${dId}`).classList.add('active');
+                    const status = document.getElementById(`status-${dId}`);
+                    status.innerText = "شغال حالياً";
+                    status.classList.add('running');
+                    const sTime = session.startTime?.toDate?.() || new Date();
+                    document.getElementById(`time-info-${dId}`).innerText = "وقت البدء: " + sTime.toLocaleTimeString('ar-EG');
+                    document.getElementById(`customer-${dId}`).value = session.customer;
+                    document.getElementById(`customer-${dId}`).disabled = true;
+                    document.getElementById(`mode-${dId}`).value = session.gameMode;
+                    document.getElementById(`mode-${dId}`).disabled = true;
+                    document.getElementById(`current-total-${dId}`).innerText = `حساب البوفيه = ${session.cafeCost || 0} ج`;
+                    document.getElementById(`start-btn-${dId}`).disabled = true;
+                    document.getElementById(`stop-btn-${dId}`).disabled = false;
+                }
+
+                // تحديث جدول المراقبة بالأسفل
+                const tableStartTime = session.startTime?.toDate?.().toLocaleTimeString('ar-EG') || "---";
+                tableHtml += `<tr>
+                    <td>${session.deviceId}</td>
+                    <td>${session.customer}</td>
+                    <td>${session.worker || "الأدمن"}</td>
+                    <td>${session.gameMode}</td>
+                    <td>${tableStartTime}</td>
+                    <td>${session.cafeItems?.join(', ') || "لا يوجد"}</td>
+                    <td><span class="status-badge status-active">🟢 نشط</span></td>
+                </tr>`;
+            });
+            document.getElementById('active-sessions-table').innerHTML = tableHtml || "<tr><td colspan='7'>لا توجد جلسات نشطة</td></tr>";
+        });
+
+        function resetDeviceUI(id) {
+            if(!document.getElementById(`card-${id}`)) return;
+            document.getElementById(`card-${id}`).classList.remove('active');
+            const status = document.getElementById(`status-${id}`);
+            status.className = "status-badge";
+            status.innerText = "الحالة: متوقف";
+            document.getElementById(`time-info-${id}`).innerText = "وقت البدء: لم يبدأ";
+            document.getElementById(`customer-${id}`).disabled = false;
+            document.getElementById(`customer-${id}`).value = "";
+            document.getElementById(`mode-${id}`).disabled = false;
+            document.getElementById(`mode-${id}`).value = "";
+            document.getElementById(`current-total-${id}`).innerText = "حساب البوفيه = 0 ج";
+            document.getElementById(`start-btn-${id}`).disabled = false;
+            document.getElementById(`stop-btn-${id}`).disabled = true;
+        }
+
+        window.saveProductToDevice = async (id) => {
+            if (!activeSessionsData[id]) return alert("يجب بدء تشغيل الجهاز أولاً!");
+            const productSelect = document.getElementById(`product-${id}`);
+            const qty = Number(document.getElementById(`qty-${id}`).value);
+            const price = Number(productSelect.value);
+
+            if (price === 0 || qty <= 0) return alert("اختر المشروب والعدد!");
+            const name = productSelect.options[productSelect.selectedIndex].getAttribute('data-name');
+            const itemText = `${name} (x${qty})`;
+
+            const currentSession = activeSessionsData[id];
+            const updatedItems = currentSession.cafeItems ? [...currentSession.cafeItems, itemText] : [itemText];
+            const updatedCost = (currentSession.cafeCost || 0) + (price * qty);
+
+            await updateDoc(doc(db, "activeSessions", currentSession.docId), {
+                cafeItems: updatedItems,
+                cafeCost: updatedCost
+            });
+            productSelect.value = "0";
+            document.getElementById(`qty-${id}`).value = "";
+        }
+
+        window.startDevice = async (id) => {
+            const customerInput = document.getElementById(`customer-${id}`);
+            const modeSelect = document.getElementById(`mode-${id}`);
+            if (customerInput.value.trim() === "" || modeSelect.value === "") return alert("برجاء إدخال بيانات الجلسة!");
+
+            await addDoc(collection(db, "activeSessions"), {
+                deviceId: id,
+                customer: customerInput.value.trim(),
+                gameMode: modeSelect.value,
+                worker: "admin@el7awe.com",
+                startTime: serverTimestamp(),
+                status: "active",
+                cafeItems: [],
+                cafeCost: 0
             });
         }
 
-        const container = document.getElementById('admin-devices-container');
-        for(let i=1; i<=4; i++) {
-            let deviceType = i <= 2 ? "PS5" : "PS4"; let singlePrice = i <= 2 ? 30 : 20; let multiPrice = i <= 2 ? 40 : 30;
-            container.innerHTML += `<div class="device-card" id="card-${i}"><h3>جهاز (${i}) - ${deviceType}</h3><div class="status-badge" id="status-${i}">الحالة: متوقف</div><div class="time-display" id="time-info-${i}">وقت البدء: لم يبدأ</div><input type="text" id="customer-${i}" placeholder="اسم العميل *"><select id="mode-${i}"><option value="">-- نوع اللعب --</option><option value="${singlePrice}">سنجل</option><option value="${multiPrice}">مالتي</option></select><div class="flex-row"><select id="product-${i}"><option value="0">اختر مشروب...</option><option value="20" data-name="شاي">شاي</option><option value="30" data-name="قهوة">قهوة</option></select><input type="number" id="qty-${i}" placeholder="العدد" style="width:65px;"><button class="btn-inline" onclick="saveProductToDevice(${i})">➕</button></div><div style="font-size:14px; margin:15px 0; font-weight:bold; text-align:center;"><span id="current-total-${i}">حساب اللحظة = 0 ج</span></div><button class="btn-start" id="start-btn-${i}" onclick="startDevice(${i})">بدء اللعب</button><button class="btn-stop" id="stop-btn-${i}" onclick="stopDevice(${i})" disabled>إنهاء الحساب</button></div>`;
+        window.stopDevice = async (id) => {
+            if (!activeSessionsData[id]) return;
+            const session = activeSessionsData[id];
+            const endTime = new Date();
+            const startTime = session.startTime?.toDate?.() || new Date();
+            const totalSeconds = Math.max(Math.floor((endTime - startTime) / 1000), 1);
+            const hrs = Math.floor(totalSeconds / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const durationText = `${hrs} س و ${mins} د`;
+
+            const device = devices.find(d => d.id === id);
+            const rate = session.gameMode === "single" ? device.singlePrice : device.multiPrice;
+            const playCost = Math.max(Math.round((totalSeconds / 3600) * rate), 1);
+            const totalBill = playCost + (session.cafeCost || 0);
+
+            await addDoc(collection(db, "currentShift"), {
+                customer: session.customer,
+                device: id,
+                play: playCost,
+                cafeItems: session.cafeItems?.join(' + ') || "لا يوجد",
+                cafe: session.cafeCost || 0,
+                total: totalBill,
+                duration: durationText,
+                dateStr: new Date().toLocaleString('ar-EG'),
+                worker: "الأدمن",
+                timestamp: serverTimestamp()
+            });
+
+            await updateDoc(doc(db, "settings", "shift"), { totalCash: increment(totalBill) });
+            await updateDoc(doc(db, "activeSessions", session.docId), { status: "closed", endTime: serverTimestamp() });
+            alert(`تم إنهاء الحساب. الإجمالي: ${totalBill} ج`);
         }
 
-        function saveProductToDevice(id) {
-            let productSelect = document.getElementById(`product-${id}`); let qty = Number(document.getElementById(`qty-${id}`).value); let price = Number(productSelect.value); if (price === 0 || qty <= 0) return alert("اختر المشروب والعدد!"); let name = productSelect.options[productSelect.selectedIndex].getAttribute('data-name'); cafeAccounts[id] += (price * qty); cafeOrdersText[id].push(`${name} (x${qty})`); document.getElementById(`current-total-${id}`).innerText = `حساب البوفيه الحالي = ${cafeAccounts[id]} ج`; productSelect.value = "0"; document.getElementById(`qty-${id}`).value = "";
-        }
-        function startDevice(id) {
-            let customerInput = document.getElementById(`customer-${id}`); let modeSelect = document.getElementById(`mode-${id}`); if (customerInput.value.trim() === "" || modeSelect.value === "") return alert("يجب كتابة الاسم واختيار نوع اللعب!"); customerInput.disabled = true; modeSelect.disabled = true; startTimes[id] = new Date(); document.getElementById(`card-${id}`).classList.add('active'); let status = document.getElementById(`status-${id}`); status.innerText = "شغال حالياً"; status.classList.add('running'); document.getElementById(`time-info-${id}`).innerText = "وقت البدء: " + startTimes[id].toLocaleTimeString('ar-EG'); document.getElementById(`start-btn-${id}`).disabled = true; document.getElementById(`stop-btn-${id}`).disabled = false;
-        }
-        function stopDevice(id) {
-            let endTime = new Date(); let startTime = startTimes[id]; let totalSeconds = Math.max(Math.floor((endTime - startTime) / 1000), 1); let hrs = Math.floor(totalSeconds / 3600); let mins = Math.floor((totalSeconds % 3600) / 60); let durationText = `${hrs} س و ${mins} د`; let modeSelect = document.getElementById(`mode-${id}`); let playCost = Math.max(Math.round((totalSeconds / 3600) * Number(modeSelect.value)), 1); let totalBill = playCost + cafeAccounts[id]; let dateStr = new Date().toLocaleString('ar-EG');
-            db.collection("currentShift").add({ customer: document.getElementById(`customer-${id}`).value, device: id, play: playCost, cafeItems: cafeOrdersText[id].join(' + ') || "لا يوجد", cafe: cafeAccounts[id], total: totalBill, duration: durationText, dateStr: dateStr, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            db.collection("settings").doc("shift").update({ totalCash: firebase.firestore.FieldValue.increment(totalBill) });
-            setTimeout(() => { document.getElementById(`card-${id}`).classList.remove('active'); document.getElementById(`status-${id}`).className = "status-badge"; document.getElementById(`status-${id}`).innerText = "الحالة: متوقف"; let cust = document.getElementById(`customer-${id}`); cust.disabled = false; cust.value = ""; modeSelect.disabled = false; modeSelect.value = ""; document.getElementById(`start-btn-${id}`).disabled = false; document.getElementById(`stop-btn-${id}`).disabled = true; document.getElementById(`current-total-${id}`).innerText = "حساب الجهاز = 0 ج"; }, 1500);
-            cafeAccounts[id] = 0; cafeOrdersText[id] = []; delete startTimes[id];
+        // الاستماع للمصروفات
+        onSnapshot(query(collection(db, "expenses"), orderBy("timestamp", "desc")), (snapshot) => {
+            let html = "";
+            snapshot.forEach(doc => {
+                const expense = doc.data();
+                html += `<tr>
+                    <td>${expense.dateStr || "---"}</td>
+                    <td>${expense.worker}</td>
+                    <td>${expense.category}</td>
+                    <td>${expense.description}</td>
+                    <td style="color: #d84315; font-weight: bold;">${expense.amount} ج</td>
+                </tr>`;
+            });
+            document.getElementById('expenses-table').innerHTML = html || "<tr><td colspan='5'>لا توجد مصروفات</td></tr>";
+        });
+
+        // ملخص مالي للوردية
+        onSnapshot(doc(db, "settings", "shift"), (snapshot) => {
+            if(snapshot.exists()) {
+                const data = snapshot.data();
+                const cash = data.totalCash || 0;
+                const expenses = data.totalExpenses || 0;
+                document.getElementById('admin-cash').innerText = cash;
+                document.getElementById('admin-expenses').innerText = expenses;
+                document.getElementById('admin-net').innerText = (cash - expenses);
+            }
+        });
+
+        // الفواتير الحالية للوردية
+        onSnapshot(query(collection(db, "currentShift"), orderBy("timestamp", "desc")), (snapshot) => {
+            let html = "";
+            snapshot.forEach(doc => {
+                const invoice = doc.data();
+                html += `<tr>
+                    <td>${invoice.dateStr || "---"}</td>
+                    <td>${invoice.customer}</td>
+                    <td>${invoice.device}</td>
+                    <td>${invoice.cafeItems}</td>
+                    <td style="color: #d84315; font-weight: bold;">${invoice.total} ج</td>
+                    <td>${invoice.worker || "---"}</td>
+                </tr>`;
+            });
+            document.getElementById('current-log').innerHTML = html || "<tr><td colspan='6'>لا توجد فواتير</td></tr>";
+        });
+        // 2. إضافة مشروب جديد أو تعديل مشروب حالي (يدعم العربي)
+window.saveProduct = async () => {
+    const name = document.getElementById('prod-name').value.trim();
+    const price = Number(document.getElementById('prod-price').value);
+    if (!name || price <= 0) return alert("برجاء إدخال اسم صحيح وسعر أعلى من الصفر!");
+
+    try {
+        // بيستبدل المسافات بـ _ في العنوان عشان الداتابيز تقرأه صح وتدعم العربي
+        const cleanId = name.replace(/\s+/g, '_'); 
+        await setDoc(doc(db, "products", cleanId), { name: name, price: price });
+        
+        alert("✓ تم حفظ المشروب بنجاح!");
+        document.getElementById('prod-name').value = "";
+        document.getElementById('prod-price').value = "";
+    } catch(e) { alert("خطأ: " + e.message); }
+}
+
+
+        // استدعاء الأرشيف
+        onSnapshot(query(collection(db, "archive")), (snapshot) => {
+            let html = "";
+            snapshot.forEach(doc => {
+                const invoice = doc.data();
+                html += `<tr>
+                    <td>${invoice.dateStr || "---"}</td>
+                    <td>${invoice.customer}</td>
+                    <td>${invoice.device}</td>
+                    <td>${invoice.cafeItems || "لا يوجد"}</td>
+                    <td style="color: #4caf50; font-weight: bold;">${invoice.total} ج</td>
+                </tr>`;
+            });
+            document.getElementById('archive-log').innerHTML = html || "<tr><td colspan='5'>الأرشيف فارغ</td></tr>";
+        });
+
+        // تقفيل الوردية
+        window.closeShift = async () => {
+            if(!confirm("هل تريد تقفيل الوردية؟ سيتم نقل جميع البيانات للأرشيف.")) return;
+            try {
+                const invoices = await getDocs(collection(db, "currentShift"));
+                for (const docRef of invoices.docs) {
+                    await addDoc(collection(db, "archive"), docRef.data());
+                    await deleteDoc(docRef.ref);
+                }
+                await updateDoc(doc(db, "settings", "shift"), { totalCash: 0, totalExpenses: 0 });
+                alert("✓ تم تقفيل الوردية بنجاح ونقلها للأرشيف!");
+            } catch(e) {
+                alert("خطأ: " + e.message);
+            }
         }
 
-        db.collection("settings").doc("shift").onSnapshot((doc) => { if(doc.exists) { let d = doc.data(); document.getElementById('admin-cash').innerText = d.totalCash || 0; document.getElementById('admin-expenses').innerText = d.totalExpenses || 0; document.getElementById('admin-net').innerText = (d.totalCash || 0) - (d.totalExpenses || 0); } });
-        db.collection("currentShift").orderBy("timestamp", "desc").onSnapshot((snap) => { let html = ""; snap.forEach(doc => { let inv = doc.data(); html += `<tr><td>${inv.dateStr || ''}</td><td>${inv.customer}</td><td>جهاز (${inv.device})</td><td>${inv.cafeItems}</td><td>${inv.cafe} ج</td><td>${inv.duration}</td><td style="color:#d84315;">${inv.total} ج</td><td><input type="text" id="phone-${doc.id}" placeholder="رقم العميل" style="width:100px; margin:0;"><button onclick="sendCustomWhatsApp('${doc.id}', '${inv.customer}', '${inv.device}', '${inv.duration}', ${inv.play}, '${inv.cafeItems}', ${inv.cafe}, ${inv.total})" style="background:#25D366; color:white; padding:5px;">💬 إرسال</button></td></tr>`; }); document.getElementById('current-log').innerHTML = html; });
-        db.collection("archive").orderBy("timestamp", "desc").onSnapshot((snap) => { let html = ""; snap.forEach(doc => { let inv = doc.data(); html += `<tr><td>${inv.dateStr || ''}</td><td>${inv.customer}</td><td>جهاز (${inv.device})</td><td>${inv.cafeItems}</td><td>${inv.cafe} ج</td><td>${inv.duration}</td><td>${inv.total} ج</td></tr>`; }); document.getElementById('archive-log').innerHTML = html; });
+        // مسح الأرشيف
+        window.clearArchive = async () => {
+            if(!confirm("هل تريد مسح الأرشيف بالكامل؟ هذا الإجراء لا يمكن التراجع عنه!")) return;
+            try {
+                const archive = await getDocs(collection(db, "archive"));
+                for (const docRef of archive.docs) {
+                    await deleteDoc(docRef.ref);
+                }
+                alert("✓ تم مسح الأرشيف!");
+            } catch(e) {
+                alert("خطأ: " + e.message);
+            }
+        }
+ // 1. حفظ أسعار الأجهزة بالداتابيز
+window.saveDevicePrices = async () => {
+    try {
+        await setDoc(doc(db, "settings", "prices"), {
+            ps5Single: Number(document.getElementById('price-ps5-single').value),
+            ps5Multi: Number(document.getElementById('price-ps5-multi').value),
+            ps4Single: Number(document.getElementById('price-ps4-single').value),
+            ps4Multi: Number(document.getElementById('price-ps4-multi').value)
+        }, { merge: true });
+        alert("✓ تم حفظ أسعار الأجهزة بنجاح!");
+    } catch(e) { alert("خطأ: " + e.message); }
+}
 
-        function sendCustomWhatsApp(id, cust, dev, dur, play, cafeItems, cafe, tot) { let phone = document.getElementById(`phone-${id}`).value.trim(); if(!phone) return alert("أدخل رقم العميل!"); if (phone.startsWith("0")) phone = "2" + phone.substring(1); let message = `مرحباً بك في بلايستيشن اَلْحَاوِي 🎮\nفاتورة جلستك يا أستاذ *${cust}*:\nالجهاز: (${dev})\nالوقت: ${dur}\nالحساب: ${tot} جنيه`; window.location.href = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`; }
-        async function closeShift() { if(!confirm("تقفيل الوردية؟")) return; let currentDocs = await db.collection("currentShift").get(); let batch = db.batch(); currentDocs.forEach(doc => { batch.set(db.collection("archive").doc(), doc.data()); batch.delete(doc.ref); }); let expensesDocs = await db.collection("expenses").get(); expensesDocs.forEach(doc => batch.delete(doc.ref)); batch.set(db.collection("settings").doc("shift"), { totalCash: 0, totalExpenses: 0 }); await batch.commit(); alert("تم التقفيل! 🔒"); }
-        async function clearArchive() { if(!confirm("حذف الأرشيف؟")) return; let docs = await db.collection("archive").get(); let batch = db.batch(); docs.forEach(doc => batch.delete(doc.ref)); await batch.commit(); alert("تم الحذف."); }
+// 2. إضافة مشروب جديد أو تعديل مشروب حالي
+window.saveProduct = async () => {
+    const name = document.getElementById('prod-name').value.trim();
+    const price = Number(document.getElementById('prod-price').value);
+    if (!name || price <= 0) return alert("برجاء إدخال اسم صحيح وسعر أعلى من الصفر!");
+
+    try {
+        await setDoc(doc(db, "products", name), { name: name, price: price });
+        alert("✓ تم حفظ المشروب بنجاح!");
+        document.getElementById('prod-name').value = "";
+        document.getElementById('prod-price').value = "";
+    } catch(e) { alert("خطأ: " + e.message); }
+}
+
+// 3. حذف مشروب من السيستم نهائياً (يدعم العربي)
+window.deleteProduct = async (name) => {
+    if (!confirm(`هل أنت متأكد من حذف مشروب [${name}]؟`)) return;
+    try {
+        const cleanId = name.replace(/\s+/g, '_');
+        await deleteDoc(doc(db, "products", cleanId));
+        alert("✓ تم حذف المشروب بنجاح!");
+    } catch(e) { alert("خطأ: " + e.message); }
+}
+
+// 4. وضع المشروب في خانات التعديل عند الضغط على القلم
+window.editProdField = (name, price) => {
+    document.getElementById('prod-name').value = name;
+    document.getElementById('prod-price').value = price;
+}
+
+// 5. الاستماع لحظياً للمشروبات وتحديث جدول الأدمن وقوائم الأجهزة تلقائياً
+onSnapshot(collection(db, "products"), (snapshot) => {
+    let html = "";
+    let optionsHtml = '<option value="0">اختر مشروب...</option>';
+    
+    snapshot.forEach(doc => {
+        const p = doc.data();
+        html += `<tr>
+            <td>${p.name}</td>
+            <td>${p.price} ج</td>
+            <td>
+                <button style="background-color: #ff9800; color: white; padding: 4px 8px; font-size:11px;" onclick="editProdField('${p.name}', ${p.price})">✏️</button>
+                <button style="background-color: #b71c1c; color: white; padding: 4px 8px; font-size:11px;" onclick="deleteProduct('${p.name}')">🗑️</button>
+            </td>
+        </tr>`;
+        optionsHtml += `<option value="${p.price}" data-name="${p.name}">${p.name} (${p.price} ج)</option>`;
+    });
+    
+    document.getElementById('admin-products-list').innerHTML = html || "<tr><td colspan='3'>لا توجد مشروبات مضافة</td></tr>";
+    
+    // تحديث كل كروت الأجهزة بالقائمة الجديدة للمشروبات
+    devices.forEach(device => {
+        const prodSelect = document.getElementById(`product-${device.id}`);
+        if (prodSelect) prodSelect.innerHTML = optionsHtml;
+    });
+});
+
+// 6. الاستماع لأسعار الساعات وعرضها في خانات التعديل عند فتح الصفحة
+onSnapshot(doc(db, "settings", "prices"), (snapshot) => {
+    if (snapshot.exists()) {
+        const currentPrices = snapshot.data();
+        document.getElementById('price-ps5-single').value = currentPrices.ps5Single || 30;
+        document.getElementById('price-ps5-multi').value = currentPrices.ps5Multi || 40;
+        document.getElementById('price-ps4-single').value = currentPrices.ps4Single || 20;
+        document.getElementById('price-ps4-multi').value = currentPrices.ps4Multi || 30;
+    }
+});
+
     </script>
 </body>
-                                                                                                                                                                                          </html>
-                                                                                            
+</html>
