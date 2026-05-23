@@ -65,6 +65,10 @@
             box-shadow: 0 4px 10px rgba(216, 67, 21, 0.3); transition: 0.3s;
         }
         button:hover { background: #bf360c; transform: scale(1.02); box-shadow: 0 6px 15px rgba(216, 67, 21, 0.4); }
+        button:disabled { background: #999; cursor: not-allowed; }
+
+        .error-msg { color: #d84315; font-size: 13px; margin-top: 10px; display: none; }
+        .success-msg { color: #4caf50; font-size: 13px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -90,12 +94,16 @@
             <span>تذكر البريد الإلكتروني  💾</span>
         </label>
         
-        <button onclick="login()">دخول إلى الحاوي ⏹️</button>
+        <button id="loginBtn" onclick="login()">دخول إلى الحاوي ⏹️</button>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg"></div>
     </div>
 
-    <script type="module">
+      <script type="module">
+        // 1. استدعاء الدوال من الفايربيز مع إضافة getDoc و doc الناقصين لحل المشكلة نهائياً
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD4viBlsx5jHmtpjfKyhDBJCJNLRM-Uduk",
@@ -108,8 +116,12 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // أول ما الصفحة تفتح.. بنشوف لو في إيميل محفوظ بنكتبه أوتوماتيك
+        // تفعيل الأوفلاين
+        enableIndexedDbPersistence(db).catch(() => {});
+
+        // جلب الإيميل المحفوظ عند فتح الصفحة
         window.addEventListener('DOMContentLoaded', () => {
             const savedEmail = localStorage.getItem("savedUserEmail");
             if (savedEmail) {
@@ -118,42 +130,86 @@
             }
         });
 
-        window.login = () => {
-            const email = document.getElementById('email').value.trim().toLowerCase();
+        // دالة تسجيل الدخول المحسنة والذكية
+        window.login = async () => {
+            let email = document.getElementById('email').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
-            const rememberEmailChecked = document.getElementById('remember-email').checked;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
 
             if(!email || !password) {
-                alert("برجاء كتابة البريد الإلكتروني وكلمة السر أولاً!");
+                errorMsg.innerText = "برجاء كتابة البريد الإلكتروني وكلمة السر أولاً!";
+                errorMsg.style.display = 'block';
                 return;
             }
 
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    let loggedEmail = userCredential.user.email.toLowerCase();
-                    localStorage.setItem("loggedUserEmail", loggedEmail);
-                    
-                    // هنا الذكاء: لو معلم على الزرار بنحفظ الإيميل، لو مش معلم بنمسحه
-                    if (rememberEmailChecked) {
-                        localStorage.setItem("savedUserEmail", loggedEmail);
-                    } else {
-                        localStorage.removeItem("savedUserEmail");
-                    }
-                    
+            // ميزة مريحة: لو العامل كتب الاسم فقط (مثال: hanin)، السيستم يكمل النطاق تلقائياً تسهيلاً للشغل من الموبايل
+            if(!email.includes('@')) {
+                email = `${email}@el7awe.com`;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerText = "جاري التحقق...";
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const loggedEmail = userCredential.user.email.toLowerCase();
+                
+                // حفظ البريد الإلكتروني في localStorage
+                localStorage.setItem("loggedUserEmail", loggedEmail);
+                
+                if (document.getElementById('remember-email').checked) {
+                    localStorage.setItem("savedUserEmail", loggedEmail);
+                } else {
+                    localStorage.removeItem("savedUserEmail");
+                }
+
+                // التحقق من دور المستخدم وصلاحياته من Firestore
+                const userDoc = await getDoc(doc(db, "users", loggedEmail));
+                let userRole = "worker"; 
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    userRole = userData.role || "worker";
+                    localStorage.setItem("userRole", userRole);
+                    localStorage.setItem("userName", userData.name || "موظف");
+                    localStorage.setItem("userPermissions", JSON.stringify(userData));
+                } else {
+                    // إذا كان الحساب هو الأدمن الرئيسي
                     if(loggedEmail === "admin@el7awe.com") {
+                        userRole = "admin";
+                        localStorage.setItem("userRole", "admin");
+                        localStorage.setItem("userName", "المالك");
+                    }
+                }
+
+                successMsg.innerText = "✓ تم تسجيل الدخول بنجاح!";
+                successMsg.style.display = 'block';
+
+                setTimeout(() => {
+                    if(userRole === "admin" || loggedEmail === "admin@el7awe.com") {
                         window.location.href = "admin.html";
                     } else {
                         window.location.href = "index.html";
                     }
-                })
-                .catch((e) => {
-                    if (e.code === "auth/wrong-password" || e.code === "auth/user-not-found") {
-                        alert("⚠️ خطأ: البريد الإلكتروني أو كلمة السر غير صحيحة!");
-                    } else {
-                        alert("⚠️ حدث خطأ أثناء تسجيل الدخول: " + e.message);
-                    }
-                });
+                }, 1000);
+
+            } catch(e) {
+                if (e.code === "auth/wrong-password" || e.code === "auth/user-not-found" || e.code === "auth/invalid-login-credentials") {
+                    errorMsg.innerText = "⚠️ خطأ: بيانات الدخول غير صحيحة، أو الحساب غير مسجل!";
+                } else {
+                    errorMsg.innerText = "⚠️ حدث خطأ: " + e.message;
+                }
+                errorMsg.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtn.innerText = "دخول إلى الحاوي ⏹️";
+            }
         }
     </script>
+
 </body>
 </html>
