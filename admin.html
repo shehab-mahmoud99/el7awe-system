@@ -537,18 +537,27 @@ window.saveProduct = async () => {
         }
 
         // مسح الأرشيف
+                // دالة مسح الأرشيف وتصفير جدول المصروفات تماماً
         window.clearArchive = async () => {
-            if(!confirm("هل تريد مسح الأرشيف بالكامل؟ هذا الإجراء لا يمكن التراجع عنه!")) return;
+            if (!confirm("⚠️ تحذير: هل أنت متأكد من مسح الأرشيف بالكامل وتصفير جدول المصروفات؟\n(لا يمكن استعادة البيانات بعد المسح!)")) return;
+
             try {
-                const archive = await getDocs(collection(db, "archive"));
-                for (const docRef of archive.docs) {
-                    await deleteDoc(docRef.ref);
-                }
-                alert("✓ تم مسح الأرشيف!");
+                // 1. مسح مستندات الأرشيف (الورديات السابقة)
+                const archiveQuery = await getDocs(collection(db, "archive"));
+                const archivePromises = archiveQuery.docs.map(docSnap => deleteDoc(doc(db, "archive", docSnap.id)));
+                await Promise.all(archivePromises);
+
+                // 2. مسح وتصفير كل المصروفات المسجلة في الجدول لحساب وردية جديدة
+                const expensesQuery = await getDocs(collection(db, "expenses"));
+                const expensesPromises = expensesQuery.docs.map(docSnap => deleteDoc(doc(db, "expenses", docSnap.id)));
+                await Promise.all(expensesPromises);
+
+                alert("🗑️ تم مسح الأرشيف وتصفير جدول المصروفات بنجاح!");
             } catch(e) {
-                alert("خطأ: " + e.message);
+                alert("خطأ أثناء مسح الأرشيف: " + e.message);
             }
         }
+
  // 1. حفظ أسعار الأجهزة بالداتابيز
 window.saveDevicePrices = async () => {
     try {
